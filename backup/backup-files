@@ -1,5 +1,6 @@
 #!/usr/bin/lua5.2
 local path = require "pl.path"
+local stringx = require "pl.stringx"
 
 local args = require ('pl.lapp') [[
 Create a rsync diffential backup
@@ -22,6 +23,11 @@ function main(source_url, target_root)
 end
 
 function rsync(source_url,target_path,previous_path)
+    -- the source_url must end with a '/' otherwise another level of folders will be creted by rsync
+    if not stringx.endswith(source_url,'/') then
+      source_url = source_url..'/'
+    end
+
     if previous_path == nil then
         print('Running initial rsync from '..source_url..' to '..target_path)
         assert( os.execute('rsync -a '..source_url..' '..target_path) )
