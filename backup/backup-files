@@ -14,7 +14,7 @@ ISO_DATE_STRING = "!%Y-%m-%dT%TZ"
 function main(source_url, target_root)
   if not path.isdir(target_root) then
     print('Creating target root folder: '..target_root)
-    path.mkdir(target_root)
+    path.makepath(target_root)
   end
   
   now = os.date(ISO_DATE_STRING)
