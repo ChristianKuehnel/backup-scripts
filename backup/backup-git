@@ -1,0 +1,37 @@
+local path = require "pl.path"
+
+
+local args = require ('pl.lapp') [[
+Backup remote git repositories by cloning/fetching
+  -p, --port    (default 22)  ssh port on remote server
+  <server>      (string)  server to be backed up
+  <source_dir>  (string)  absolute path to git repos on server
+  <target_dir>  (string)  absolute path where to store the backups locally
+]]
+
+server = args.server
+port= args.port
+source_dir = args.source_dir
+target_dir = args.target_dir
+
+cmd = string.format('ssh -n %s -p %d ls -1 %s',server,port,source_dir)
+f = assert( io.popen( cmd ) )
+
+
+for repo in f:lines() do
+  full_source = 'ssh://'..server..':'..port..source_dir..'/'..repo 
+  full_target = path.join(target_dir, repo)
+  if path.isdir(full_target) then
+    print('fetching '..full_source..' to '..full_target)
+    path.chdir (full_target )
+    assert( os.execute('git fetch') )
+  else
+    print('cloning '..full_source..' to '..full_target)
+    path.chdir( target_dir )
+    cmd = string.format('git clone --bare '..full_source..' '..repo)
+    assert( os.execute(cmd) )         
+  end
+    
+end
+
+f:close()
