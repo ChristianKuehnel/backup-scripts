@@ -1,0 +1,45 @@
+#!/usr/bin/lua5.2
+local path = require "pl.path"
+
+local args = require ('pl.lapp') [[
+Create a rsync diffential backup
+<source_url>   (string)  rsync source url to be backed up
+<target_root>   (string)  Target path, where backups will be stores
+]]
+
+ISO_DATE_STRING = "!%Y-%m-%dT%TZ"
+
+
+function main(source_url, target_root)
+  if not path.isdir(target_root) then
+    print('Creating target root folder: '..target_root)
+    path.mkdir(target_root)
+  end
+  
+  now = os.date(ISO_DATE_STRING)
+  target_path = path.join(target_root,now)
+  rsync(source_url,target_path, find_latest(target_root))
+end
+
+function rsync(source_url,target_path,previous_path)
+    if previous_path == nil then
+        print('Running initial rsync from '..source_url..' to '..target_path)
+        assert( os.execute('rsync -a '..source_url..' '..target_path) )
+    else
+        print('Running incremental rsync from '..source_url..' to '..target_path)
+        print('Using '..previous_path..' as baseline.')
+        assert( os.execute('rsync -a --delete --link-dest='..previous_path..' '..source_url..' '..target_path) )
+    end
+end
+
+function find_latest(target_root)
+  latest = nil  
+  for entry in path.dir(target_root) do
+    if entry ~= '.' and entry ~= '..' and (latest == nil or entry > latest) then
+      latest = entry
+    end
+  end
+  return path.join(target_root,latest)
+end
+
+main(args.source_url,args.target_root)
