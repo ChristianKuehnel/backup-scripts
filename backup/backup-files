@@ -45,6 +45,9 @@ function find_latest(target_root)
       latest = entry
     end
   end
+  if latest == nil then
+    return nil
+  end
   return path.join(target_root,latest)
 end
 
