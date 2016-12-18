@@ -8,6 +8,8 @@ on a OpenWRT router).
 1. Install these packages (on Alpine Linux):
 ```apk add lua5.2 lua5.2-penlight git rsync```
 
+1. To use the webdav-backup, see [davfs2](doc/davfs2.md)
+
 1. Then git clone this repository
 
 1. Make sure that the user account running the script can ssh into the server 
@@ -42,9 +44,27 @@ Create a rsync diffential backup
 <target_root>   (string)  Target path, where backups will be stores
 ```
 
+## backup-webdav
+TODO: implement this
+
 ## backup-prune
 TODO: Implement to thin out the incremental backups to reduce the disc usage.
 
+## running from a lua script
+You can also run the backup commands from a lua script. Example:
+```
+#!/usr/bin/lua5.2
+
+package.path = package.path..(';<path of git repo clone>/?/init.lua')
+local backup = require('backup')
+local path=require('pl.path')
+
+-- to backup a git repo:
+backup.git('hostname',22,'/home/git','/home/backup/git')
+
+-- to backup some files:
+backup.files('hostname:/home/someuser/important','/home/backup/important')
+```
 
 # License
 
