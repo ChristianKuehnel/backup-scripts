@@ -16,7 +16,7 @@ function backup.files(source_url, target_root)
 end
 
 function backup.git(server, port, source_dir, target_dir )
-  dir.makepath(target_root)
+  dir.makepath(target_dir)
   
   cmd = string.format('ssh -n %s -p %d ls -1 %s',server,port,source_dir)
   f = assert( io.popen( cmd ) )
