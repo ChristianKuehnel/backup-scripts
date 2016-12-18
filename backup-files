@@ -1,4 +1,6 @@
 #!/usr/bin/lua5.2
+
+package.path = package.path..(';./?/init.lua')
 local backup = require('backup')
 
 local args = require ('pl.lapp') [[
@@ -6,7 +8,6 @@ Create a rsync diffential backup
 <source_url>   (string)  rsync source url to be backed up
 <target_root>   (string)  Target path, where backups will be stores
 ]]
-
 
 
 backup.files(args.source_url,args.target_root)

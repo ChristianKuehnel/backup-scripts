@@ -1,5 +1,6 @@
 #!/usr/bin/lua5.2
 
+package.path = package.path..(';./?/init.lua')
 local backup = require "backup"
 
 local args = require ('pl.lapp') [[
