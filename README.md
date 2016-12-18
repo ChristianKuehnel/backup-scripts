@@ -57,7 +57,6 @@ You can also run the backup commands from a lua script. Example:
 
 package.path = package.path..(';<path of git repo clone>/?/init.lua')
 local backup = require('backup')
-local path=require('pl.path')
 
 -- to backup a git repo:
 backup.git('hostname',22,'/home/git','/home/backup/git')
