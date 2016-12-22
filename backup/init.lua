@@ -104,7 +104,7 @@ end
   
   
 function remove_last_slash(s)
-  if s.endswith(s,'/') then
+  if stringx.endswith(s,'/') then
   s = s:sub(1, -2)
   end
   return s
