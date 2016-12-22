@@ -8,12 +8,12 @@ local posix = require "posix"
 local ISO_DATE_STRING = "!%Y-%m-%dT%TZ"
 
 -- Exported functions -------------------------------------
-function backup.files(source_url, target_root)
+function backup.files(source_url, target_root, exclude)
   dir.makepath(target_root)
   
   now = os.date(ISO_DATE_STRING)
   target_path = path.join(target_root,now)
-  rsync(source_url,target_path, find_latest(target_root))
+  rsync(source_url,target_path, find_latest(target_root), exclude)
 end
 
 function backup.git(server, port, source_dir, target_dir )
@@ -53,25 +53,32 @@ function backup.webdav(mount_point, target_dir)
   end
   assert( os.execute(prefix..'mount '..mount_point) )
   
-  backup.files(mount_point,target_dir)
+  backup.files(mount_point,target_dir,{"lost+found"})
   assert( os.execute(prefix..'umount '..mount_point) )
 end 
 
 -- Helpers --------------------------------------------
 
-function rsync(source_url,target_path,previous_path)
+function rsync(source_url,target_path,previous_path, exclude)
     -- the source_url must end with a '/' otherwise another level of folders will be creted by rsync
     if not stringx.endswith(source_url,'/') then
       source_url = source_url..'/'
     end
 
+    exclude_string = " "
+
+    for i,e in ipairs(exclude) do
+	exclude_string = exclude_string..' --exclude="'..e..'" '
+    end
+
+
     if previous_path == nil then
         print('Running initial rsync from '..source_url..' to '..target_path)
-        assert( os.execute('rsync -a '..source_url..' '..target_path) )
+        assert( os.execute('rsync -a '..exclude_string..source_url..' '..target_path) )
     else
         print('Running incremental rsync from '..source_url..' to '..target_path)
         print('Using '..previous_path..' as baseline.')
-        assert( os.execute('rsync -a --delete --link-dest='..previous_path..' '..source_url..' '..target_path) )
+        assert( os.execute('rsync -a --delete --link-dest='..previous_path..exclude_string..source_url..' '..target_path) )
     end
 end
 
