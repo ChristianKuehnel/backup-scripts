@@ -48,13 +48,13 @@ function backup.webdav(mount_point, target_dir)
   end
   
   if is_mounted(mount_point) then
-    print('warning: folder is already mounted!')
-  else
-    assert( os.execute(prefix..'mount '..mount_point) )
+    print('warning: folder is already mounted! Unmounting first')
+    assert( os.execute(prefix..'umount '..mount_point) )
   end
+  assert( os.execute(prefix..'mount '..mount_point) )
   
   backup.files(mount_point,target_dir)
-  assert( os.execute(prefix..'umount'..mount_point) )
+  assert( os.execute(prefix..'umount '..mount_point) )
 end 
 
 -- Helpers --------------------------------------------
@@ -89,25 +89,20 @@ function find_latest(target_root)
 end
 
 function is_mounted(mount_point)
-  f = assert( io.popen( '/proc/mounts' ) )
-  mount_point = remove_last_slash(mount_point)  
+  f = assert( io.open( '/proc/mounts','r' ) )
   for line in f:lines() do
     words = string.gmatch(line, '%S+')
     device = words()
-    target = remove_last_slash( words() )
-    if target == mount_point then
+    target = normpath(words())
+    if target == normpath(mount_point) then
       return true
     end
   end
   return false
 end
-  
-  
-function remove_last_slash(s)
-  if stringx.endswith(s,'/') then
-  s = s:sub(1, -2)
-  end
-  return s
+
+function normpath(p)
+  return path.normpath( path.abspath( p ))
 end
 
 return backup
