@@ -46,7 +46,13 @@ function backup.webdav(mount_point, target_dir)
     -- if we're not root: execute with sudo
     prefix = 'sudo '
   end
-  assert( os.execute(prefix..'mount '..mount_point) )
+  
+  if is_mounted(mount_point) then
+    print('warning: folder is already mounted!')
+  else
+    assert( os.execute(prefix..'mount '..mount_point) )
+  end
+  
   backup.files(mount_point,target_dir)
   assert( os.execute(prefix..'umount'..mount_point) )
 end 
@@ -81,6 +87,22 @@ function find_latest(target_root)
   end
   return path.join(target_root,latest)
 end
+
+function is_mounted(mount_point)
+  f = assert( io.popen( '/proc/mount' ) )
+  for line in f:lines() do
+    words = string.gmatch(line, '%S+')
+    device = words()
+    target = words()
+    if target == mount_point then
+      return true
+    end
+  end
+  return false
+  
+
+end
+
 
 
 return backup
