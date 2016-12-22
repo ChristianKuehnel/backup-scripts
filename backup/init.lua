@@ -3,6 +3,7 @@ local backup = {}
 local path = require "pl.path"
 local dir = require "pl.dir"
 local stringx = require "pl.stringx"
+local posix = require "posix"
 
 local ISO_DATE_STRING = "!%Y-%m-%dT%TZ"
 
@@ -38,6 +39,17 @@ function backup.git(server, port, source_dir, target_dir )
   end
   f:close()
 end
+
+function backup.webdav(mount_point, target_dir)
+  local prefix = ""
+  if posix.getuid() ~= 0 then
+    -- if we're not root: execute with sudo
+    prefix = 'sudo '
+  end
+  assert( os.execute(prefix..'mount '..mount_point) )
+  backup.files(mount_point,target_dir)
+  assert( os.execute(prefix..'umount'..mount_point) )
+end 
 
 -- Helpers --------------------------------------------
 

@@ -1,0 +1,13 @@
+#!/usr/bin/lua5.2
+
+package.path = package.path..(';./?/init.lua')
+local backup = require('backup')
+
+local args = require ('pl.lapp') [[
+Create a rsync diffential backup from a webdav folder mounted via davfs2
+<mount_point>   (string)  local mount point where davfs2 is configured to
+<target_root>   (string)  Target path, where backups will be stored
+]]
+
+
+backup.webdav(args.mount_point,args.target_root)

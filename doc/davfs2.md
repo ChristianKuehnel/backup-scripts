@@ -11,10 +11,24 @@ lxc.mount.entry = /dev/fuse /dev/fuse  none bind,optional,create=dir
 ```  
 
 ## inside the container
-1. Install fuse:
+1. Install fuse and sudo:
 ```
-apk add fuse
+apk add fuse sudo
 ```
+Note: sudo is only required if you plan to run the scripts as non-root user
+
+1. add your local user account to the group davfs2
+```
+addgroup <username> davfs2
+```
+
+
+1. add two lines to /etc/sudoers
+```
+%davfs2 ALL = NOPASSWD: /bin/mount
+%davfs2 ALL = NOPASSWD: /bin/umount
+```
+
 
 1. Install the package davfs2, which is 
 only available in edge. Download davfs2-<versionnumber>.apk from the
@@ -60,7 +74,13 @@ for NextCloud use:
 https://<hostname>/nextcloud/remote.php/dav/files/<username>/ /mnt/webdav davfs user,auto,_netdev 0 0 
 ```
 
-1. TODO: store the credentials somewhere...
+1. add a line with the credentials to /etc/davfs2/secrets, where you give the local mount point from fstab:
+```
+/mnt/webdav <username> <password>
+```
+
+
+
 
 1. Test your setup by mounting the foler:
 ```
