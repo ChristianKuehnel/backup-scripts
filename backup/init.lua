@@ -89,20 +89,25 @@ function find_latest(target_root)
 end
 
 function is_mounted(mount_point)
-  f = assert( io.popen( '/proc/mount' ) )
+  f = assert( io.popen( '/proc/mounts' ) )
+  mount_point = remove_last_slash(mount_point)  
   for line in f:lines() do
     words = string.gmatch(line, '%S+')
     device = words()
-    target = words()
+    target = remove_last_slash( words() )
     if target == mount_point then
       return true
     end
   end
   return false
-  
-
 end
-
-
+  
+  
+function remove_last_slash(s)
+  if s.endswith(s,'/') then
+  s = s:sub(1, -2)
+  end
+  return s
+end
 
 return backup
