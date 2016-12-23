@@ -1,19 +1,19 @@
 local backup = {} 
 
 local path = require "pl.path"
+local helper = require "backup.helper"
 local dir = require "pl.dir"
-local stringx = require "pl.stringx"
+local Date = require "pl.Date"
 local posix = require "posix"
 
-local ISO_DATE_STRING = "!%Y-%m-%dT%TZ"
 
 -- Exported functions -------------------------------------
 function backup.files(source_url, target_root, exclude)
   dir.makepath(target_root)
   
-  now = os.date(ISO_DATE_STRING)
+  now = helper.date_to_string(Date())
   target_path = path.join(target_root,now)
-  rsync(source_url,target_path, find_latest(target_root), exclude)
+  helper.rsync(source_url,target_path, helper.find_latest(target_root), exclude)
 end
 
 function backup.git(server, port, source_dir, target_dir )
@@ -57,59 +57,5 @@ function backup.webdav(mount_point, target_dir)
   assert( os.execute(prefix..'umount '..mount_point) )
 end 
 
--- Helpers --------------------------------------------
-
-function rsync(source_url,target_path,previous_path, exclude)
-    -- the source_url must end with a '/' otherwise another level of folders will be creted by rsync
-    if not stringx.endswith(source_url,'/') then
-      source_url = source_url..'/'
-    end
-
-    exclude_string = " "
-
-    for i,e in ipairs(exclude) do
-	exclude_string = exclude_string..' --exclude="'..e..'" '
-    end
-
-
-    if previous_path == nil then
-        print('Running initial rsync from '..source_url..' to '..target_path)
-        assert( os.execute('rsync -a '..exclude_string..source_url..' '..target_path) )
-    else
-        print('Running incremental rsync from '..source_url..' to '..target_path)
-        print('Using '..previous_path..' as baseline.')
-        assert( os.execute('rsync -a --delete --link-dest='..previous_path..exclude_string..source_url..' '..target_path) )
-    end
-end
-
-function find_latest(target_root)
-  latest = nil  
-  for entry in path.dir(target_root) do
-    if entry ~= '.' and entry ~= '..' and (latest == nil or entry > latest) then
-      latest = entry
-    end
-  end
-  if latest == nil then
-    return nil
-  end
-  return path.join(target_root,latest)
-end
-
-function is_mounted(mount_point)
-  f = assert( io.open( '/proc/mounts','r' ) )
-  for line in f:lines() do
-    words = string.gmatch(line, '%S+')
-    device = words()
-    target = normpath(words())
-    if target == normpath(mount_point) then
-      return true
-    end
-  end
-  return false
-end
-
-function normpath(p)
-  return path.normpath( path.abspath( p ))
-end
 
 return backup
