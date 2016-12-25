@@ -82,23 +82,23 @@ TestPrune = {}
 
   function TestPrune.test_spare_young_ones()
     local test_data = {}
-    test_data["2016-01-01T12:00:00"] = true
+    test_data["2016-01-01T12:00:00"] = false
     test_data["2016-01-02T12:00:00"] = false
     test_data["2016-01-03T12:00:00"] = false
-    test_data["2016-02-01T12:00:00"] = true
-    test_data["2016-03-01T12:00:00"] = false
+    test_data["2016-02-01T12:00:00"] = false
+    test_data["2016-03-01T12:00:00"] = true
     test_data["2016-03-02T12:00:00"] = false
-    test_data["2016-03-03T12:00:00"] = true
-    test_data["2016-04-01T12:00:00"] = true
+    test_data["2016-03-03T12:00:00"] = false
+    test_data["2016-04-01T12:00:00"] = false
     test_data["2016-05-01T12:00:00"] = true
-    test_data["2016-06-01T12:00:00"] = true
+    test_data["2016-06-01T12:00:00"] = false
     test_data["2016-07-01T12:00:00"] = true
     test_data["2016-08-01T12:00:00"] = true
     test_data["2016-09-07T12:00:00"] = true
     test_data["2016-09-08T12:00:00"] = false
     test_data["2016-09-09T12:00:00"] = false
     test_data["2016-09-10T12:00:00"] = true
-    test_data["2016-09-11T12:00:00"] = true
+    test_data["2016-09-11T12:00:00"] = false
     test_data["2016-09-12T12:00:00"] = true
     test_data["2016-09-13T12:00:00"] = true
     test_data["2016-09-14T12:00:00"] = true
@@ -110,7 +110,7 @@ TestPrune = {}
     test_data["2016-09-20T12:00:00"] = true
     test_data["2016-09-20T12:39:00"] = true
     
-    local dirs = tablex.keys(test_data)
+    local dirs = List(tablex.keys(test_data))
 
     local young_limit = day * 10
     local old_limit = day * 110

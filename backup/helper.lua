@@ -6,7 +6,7 @@ local stringx = require "pl.stringx"
 local posix = require "posix"
 local Date = require "pl.Date"
 local tablex = require "pl.tablex"
-local seq = require "pl.seq"
+local List = require "pl.List"
 
 
 local date_format = Date.Format()
@@ -63,20 +63,17 @@ function helper.is_mounted(mount_point)
 end
 
 function helper.select_for_deletion(dirs,now,young_limit,old_limit,young_retention,old_retention)
-  local to_delete = {}
-  local sorted_dirs = seq(dirs):sort():copy()
-  local last_date = helper.string_to_date( sorted_dirs[1] )
-  for i=2, (tablex.size(sorted_dirs)-1) do
-    local current = sorted_dirs[i]
-    local next = sorted_dirs[i+1]
+  local to_delete = List()
+  dirs:sort()
+  local last_date = helper.string_to_date(dirs[1]) 
+  for current in dirs:iter() do
     local current_date = helper.string_to_date(current)
-    local next_date = helper.string_to_date(next)
     local age = now - last_date    
     local retention = Date.Interval( 
       helper.retention_time(age.time,young_limit,old_limit,young_retention,old_retention))
-    --print(type(next_date),type(retention))
-    if last_date + retention > next_date then
-      to_delete[#to_delete+1] = current
+    --print(last_date, retention, current_date)
+    if last_date + retention > current_date then
+      to_delete:append( current )
     else
       last_date = current_date
     end
@@ -109,7 +106,7 @@ function helper.normpath(p)
 end
 
 function helper.string_to_date(dstr)
-  return date_format:parse(dstr)
+  return date_format:parse(tostring(dstr))
 end
 
 
