@@ -15,7 +15,7 @@ function helper.rsync(source_url,target_path,previous_path, exclude)
       source_url = source_url..'/'
     end
 
-    exclude_string = " "
+    local exclude_string = " "
     if exclude ~= nil then
       for i,e in ipairs(exclude) do
         exclude_string = exclude_string..' --exclude="'..e..'" '
@@ -24,18 +24,18 @@ function helper.rsync(source_url,target_path,previous_path, exclude)
     
     if previous_path == nil then
         print('Running initial rsync from '..source_url..' to '..target_path)
-        cmd = 'rsync -a '..exclude_string..' "'..source_url..'" "'..target_path..'"'
+        local cmd = 'rsync -a '..exclude_string..' "'..source_url..'" "'..target_path..'"'
         assert( os.execute(cmd) )
     else
         print('Running incremental rsync from '..source_url..' to '..target_path)
         print('Using '..previous_path..' as baseline.')
-        cmd = 'rsync -a --delete --link-dest="'..previous_path..'" '..exclude_string..' "'..source_url..'" "'..target_path..'"'
+        local cmd = 'rsync -a --delete --link-dest="'..previous_path..'" '..exclude_string..' "'..source_url..'" "'..target_path..'"'
         assert( os.execute(cmd) )
     end
 end
 
 function helper.find_latest(target_root)
-  latest = nil  
+  local latest = nil  
   for entry in path.dir(target_root) do
     if entry ~= '.' and entry ~= '..' and (latest == nil or entry > latest) then
       latest = entry
@@ -50,9 +50,9 @@ end
 function helper.is_mounted(mount_point)
   f = assert( io.open( '/proc/mounts','r' ) )
   for line in f:lines() do
-    words = string.gmatch(line, '%S+')
-    device = words()
-    target = normpath(words())
+    local words = string.gmatch(line, '%S+')
+    local device = words()
+    local target = normpath(words())
     if target == normpath(mount_point) then
       return true
     end
@@ -61,15 +61,15 @@ function helper.is_mounted(mount_point)
 end
 
 function helper.select_for_deletion(dirs,now,young_limit,old_limit,young_retention,old_retention)
-  to_delete = {}
+  local to_delete = {}
   -- TODO: sort the list!
   for i=1, (tablex.size(dirs)-1) do
-    current = dirs[i]
-    next = dirs[i+1]
-    current_date = helper.string_to_date(current)
-    next_date = helper.string_to_date(next)
-    age = now - current_date    
-    retention = helper.retention_time(age.time,young_limit,old_limit,young_retention,old_retention)
+    local current = dirs[i]
+    local next = dirs[i+1]
+    local current_date = helper.string_to_date(current)
+    local next_date = helper.string_to_date(next)
+    local age = now - current_date    
+    local retention = helper.retention_time(age.time,young_limit,old_limit,young_retention,old_retention)
     if next_date - current_date > Date.Interval(retention) then
       to_delete[#to_delete+1] = current
     end

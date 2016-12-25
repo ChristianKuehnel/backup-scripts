@@ -11,20 +11,20 @@ local posix = require "posix"
 function backup.files(source_url, target_root, exclude)
   dir.makepath(target_root)
   
-  now = helper.date_to_string(Date())
-  target_path = path.join(target_root,now)
+  local now = helper.date_to_string(Date())
+  local target_path = path.join(target_root,now)
   helper.rsync(source_url,target_path, helper.find_latest(target_root), exclude)
 end
 
 function backup.git(server, port, source_dir, target_dir )
   dir.makepath(target_dir)
   
-  cmd = string.format('ssh -n %s -p %d ls -1 %s',server,port,source_dir)
-  f = assert( io.popen( cmd ) )
+  local cmd = string.format('ssh -n %s -p %d ls -1 %s',server,port,source_dir)
+  local f = assert( io.popen( cmd ) )
   
   for repo in f:lines() do
-    full_source = 'ssh://'..server..':'..port..source_dir..'/'..repo 
-    full_target = path.join(target_dir, repo)
+    local full_source = 'ssh://'..server..':'..port..source_dir..'/'..repo 
+    local full_target = path.join(target_dir, repo)
     if path.isdir(full_target) then
       print('fetching '..full_source..' to '..full_target)
       path.chdir (full_target )
