@@ -65,16 +65,20 @@ end
 function helper.select_for_deletion(dirs,now,young_limit,old_limit,young_retention,old_retention)
   local to_delete = {}
   local sorted_dirs = seq(dirs):sort():copy()
-  
-  for i=1, (tablex.size(sorted_dirs)-1) do
+  local last_date = helper.string_to_date( sorted_dirs[1] )
+  for i=2, (tablex.size(sorted_dirs)-1) do
     local current = sorted_dirs[i]
     local next = sorted_dirs[i+1]
     local current_date = helper.string_to_date(current)
     local next_date = helper.string_to_date(next)
-    local age = now - current_date    
-    local retention = helper.retention_time(age.time,young_limit,old_limit,young_retention,old_retention)
-    if next_date - current_date > Date.Interval(retention) then
+    local age = now - last_date    
+    local retention = Date.Interval( 
+      helper.retention_time(age.time,young_limit,old_limit,young_retention,old_retention))
+    --print(type(next_date),type(retention))
+    if last_date + retention > next_date then
       to_delete[#to_delete+1] = current
+    else
+      last_date = current_date
     end
   end
   return to_delete
@@ -92,7 +96,7 @@ function helper.retention_time(age,young_limit,old_limit,young_retention,old_ret
   assert(type(old_retention) == "number", "old_retention must be a number")
   
   if age <= young_limit then
-    return young_limit
+    return 0
   elseif age >= old_limit then
     return old_retention
   end
