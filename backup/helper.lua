@@ -52,8 +52,8 @@ function helper.is_mounted(mount_point)
   for line in f:lines() do
     words = string.gmatch(line, '%S+')
     device = words()
-    target = normpath(words())
-    if target == normpath(mount_point) then
+    target = helper.normpath(words())
+    if target == helper.normpath(mount_point) then
       return true
     end
   end
