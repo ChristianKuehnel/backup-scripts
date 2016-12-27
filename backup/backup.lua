@@ -47,7 +47,7 @@ function backup.webdav(mount_point, target_dir)
     prefix = 'sudo '
   end
   
-  if is_mounted(mount_point) then
+  if helper.is_mounted(mount_point) then
     print('warning: folder is already mounted! Unmounting first')
     assert( os.execute(prefix..'umount '..mount_point) )
   end
