@@ -52,10 +52,11 @@ end
 function helper.is_mounted(mount_point)
   f = assert( io.open( '/proc/mounts','r' ) )
   for line in f:lines() do
-    local words = string.gmatch(line, '%S+')
-    local device = words()
-    local target = normpath(words())
-    if target == normpath(mount_point) then
+
+    words = string.gmatch(line, '%S+')
+    device = words()
+    target = helper.normpath(words())
+    if target == helper.normpath(mount_point) then
       return true
     end
   end

@@ -53,9 +53,10 @@ start() {
 }
 ```
 
-1. make lxc-devices executable and run it:
+1. make lxc-devices executable add it to the default startup services and run it:
 ```
 chmod +x /etc/init.d/lxc-devices
+rc-update add lxc-devices
 /etc/init.d/lxc-devices start
 ```
 
